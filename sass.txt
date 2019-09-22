@@ -1,0 +1,178 @@
+1.变量声明$
+$highlight-color: 1px solid #F90;
+.selected {
+  border:  $highlight-color;
+}
+局部变量转换为全局变量$width: 5em !global;
+
+2.父选择器的标识符&
+article a {
+  color: blue;
+  &:hover { color: red }
+  body.ie & {color:green}
+}
+
+3.嵌套属性
+nav {
+  border: 1px solid #ccc {
+  left: 0px;
+  right: 0px;
+  }
+}
+
+4.导入SASS文件
+@import "colors.scss" //后缀名可省略
+@import "colors","text-shadow"
+sass局部文件的文件名以下划线开头。sass就不会在编译时单独编译这个文件输出css，而只把这个文件用作导入
+@import "_color.scss" //下划线和后缀名可省略
+.blue-theme{ @import "color" } //嵌套导入
+
+5.默认变量值
+局部文件如下，若在引用局部文件之前设置了$fancybox-width，那么局部文件中的$fancybox-width: 400px无效
+$fancybox-width: 400px !default;
+.fancybox {
+width: $fancybox-width;
+}
+
+6.静默注释/*...*/
+// 注释不会出现在生成的.css文件当中，/**/会
+
+7.混合器
+@mixin rounded-corners {  //定义
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+@include  rounded-corners  //引用
+@mixin link-colors($normal, $hover:$normal, $visited:$normal) {  //混合器传参，并设置默认值
+  color: $normal;
+  &:hover { color: $hover; }
+  &:visited { color: $visited; }
+}
+a {
+  @include link-colors(blue, red, green); 
+}
+
+8.通过选择器继承样式（最好避免使用后代选择器继承）
+.error{
+  border: 1px solid red;
+  background-color: #fdd;
+}
+.error a {  //此样式也会应用到.seriousError a上
+  color:red;
+}
+.seriousError {
+  @extend .error;
+  border-width: 3px;
+}
+
+9.使用SASS
+安装Ruby  https://rubyinstaller.org/
+安装SASS：命令gem install sass
+新建input.scss
+命令sass input.scss output.css
+监视单个sass文件，命令sass --watch input.scss:output.css
+监视整个文件夹，命令sass --watch app/sass:public/stylesheets
+
+10.媒体查询@media
+.sidebar {
+  width: 300px;
+  @media screen and (orientation: landscape) {
+    width: 500px;
+  }
+}
+
+11.控制指令
+@if指令
+$type: monster;
+p {
+  @if $type == ocean {
+    color: blue;
+  } @else if $type == matador {
+    color: red;
+  } @else if $type == monster {
+    color: green;
+  } @else {
+    color: black;
+  }
+}
+
+@for指令
+@for $i from 1 through 3 {    //from..to..指令不包括后一个值3
+  .item-#{$i} { width: 2em * $i; }
+}
+.item-1 {  width: 2em; }
+.item-2 {  width: 4em; }
+.item-3 {  width: 6em; }
+
+@each指令
+//一个变量对多个值
+@each $animal in puma, sea-slug, egret, salamander {
+  .#{$animal}-icon {
+    background-image: url('/images/#{$animal}.png');
+  }
+}
+.puma-icon {  background-image: url('/images/puma.png'); }
+.sea-slug-icon {  background-image: url('/images/sea-slug.png'); }
+.egret-icon {  background-image: url('/images/egret.png'); }
+.salamander-icon {  background-image: url('/images/salamander.png'); }
+//多个变量对应多个值
+@each $animal, $color, $cursor in (puma, black, default),
+                                  (sea-slug, blue, pointer),
+                                  (egret, white, move) {
+  .#{$animal}-icon {
+    background-image: url('/images/#{$animal}.png');
+    border: 2px solid $color;
+    cursor: $cursor;
+  }
+}
+.puma-icon {
+  background-image: url('/images/puma.png');
+  border: 2px solid black;
+  cursor: default; }
+.sea-slug-icon {
+  background-image: url('/images/sea-slug.png');
+  border: 2px solid blue;
+  cursor: pointer; }
+.egret-icon {
+  background-image: url('/images/egret.png');
+  border: 2px solid white;
+  cursor: move; }
+
+//@while指令
+$i: 6;
+@while $i > 0 {
+  .item-#{$i} { width: 2em * $i; }
+  $i: $i - 2;
+}
+.item-6 {  width: 12em; }
+.item-4 {  width: 8em; }
+.item-2 {  width: 4em; }
+
+12.自定义指令
+$grid-width: 40px;
+$gutter-width: 10px;
+@function grid-width($n) {
+  @return $n * $grid-width + ($n - 1) * $gutter-width;
+}
+#sidebar { width: grid-width(5); }
+
+13.compass用法
+安装compass，命令gem install compass
+
+创建文件目录结构，命令compass create mytest
+
+在mytest/sass文件夹下新建test.scss
+
+cd到mytest文件夹
+
+编译，命令compass compile
+
+若要调整输出文件css的样式风格，命令compass compile --output-style compressed ，展开格式expanded，nested嵌套格式，compact紧凑格式，compressed压缩格式
+
+监听自动编译，命令compass watch
+
+下载compass模块，命令gem install compass-normalize
+
+查看ruby
+

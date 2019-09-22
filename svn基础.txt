@@ -1,0 +1,81 @@
+1.服务端命令
+svnserver 控制svn系统服务的启动
+svnadmin 版本库的创建/导出/导入/删除
+svnlook 查看版本库信息
+
+2.客户端命令
+svn 版本库的检出/更新/提交/重定向
+svn add 添加到版本控制
+svn commit 提交修改到服务器端
+svn updata 更新工作副本
+svn delete 从版本库中删除文件或目录
+
+svn add index.html（单个文件）
+svn add css （文件夹下的所有文件）
+svn add js --non-recursive （空文件夹）
+svn add * （所有文件，遇到文件夹名称相同，将不会提交此文件夹里的文件）
+svn add * --force （所有文件，同名文件夹强制执行提交）
+svn commit -m "每次提交的说明，必选参数" index.html（单个文件）
+svn commit -m "每次提交的说明，必选参数" *（所有文件）
+svn updata -r v1.0 index.html 更新到指定版本的指定文件
+svn updata特性：默认情况下，每个文件只会从服务器端更新一次最新版本
+svn updata * 再次从服务端请求，强制更新所有文件
+svn rm index.html  svn commit -m  删除文件并提交，成功删除
+
+svn diff 版本差异比较
+svn mkdir 创建目录并增加到版本控制
+svn cat 不检出工作副本直接查看指定文件
+
+svn diff index.html 本地文件与版本库最新的文件比较
+svn diff -r v1.0 index.html 本地文件与指定版本的文件比较
+svn diff -r 1:3 index 版本1和版本3的比较
+svn cat svn://134.175.41.162/index.html 
+
+svn revert 工作副本还原到版本库最新的状态
+svn revert index.htmml
+svn revert *  还原当前目录下的文件，不包括子目录下的文件
+svn revert --recursive *  还原当前目录下的所有文件，包括子目录下的文件
+
+3.新建一个目录作为根目录，创建版本库
+D:\Subversion\respository
+svnadmin create learnsvn
+
+4.版本库配置及权限分组
+配置文件目录D:\Subversion\respository\learnsvn\conf
+
+authz 配置用户组以及用户组权限
+[groups]   给用户分组
+group1 = people1
+group2 = people2,people3
+group3 = people4
+[/foo/bar]  给组或用户分配权限
+@group1 = rw  第一组既能更新又能提交
+@group2 = rw
+@group3 = r
+* =    所有用户什么都不能做
+people3 = r  第三人只能更新
+[repository:/baz/fuz]  
+* = r  所有用户都只能更新
+
+password 配置用户名和密码
+格式：用户名=密码
+people1 = 123
+people2 = 456
+people3 =789
+people4 = 147
+
+svnserve.conf 配置默认权限、权限配置文件及密码配置文件
+anon-access = read 没有验证的用户只能更新代码
+auth-access = write 通过验证的用户既能更新也能提交
+password-db = passwd
+authz-db = authz
+
+5.下载服务器端版本库
+svn checkout svn://134.175.41.162
+
+6.checkout和export区别
+svn checkout -r v1.0  在版本控制之下，有.svn隐藏文件夹
+svn export -r v1.1   脱离版本控制
+
+7.冲突
+

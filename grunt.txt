@@ -1,0 +1,166 @@
+//安装grunt（全局安装） npm install -g grunt-cli
+// npm init 创建一个package.json文件
+//npm install grunt --save-dev 在项目里安装grunt
+//创建一个Gruntfile.js作为入口文件
+
+module.exports=function (grunt) {
+    grunt.initConfig({
+        //给任务定义数据
+        greetData:{
+            name:'zyh',age:21,sex:'girl'
+        }
+    });
+
+    grunt.registerTask('default',function (name) {
+        // 第一个参数是任务的名称，第二个参数为回调函数
+        console.log('hello Grunt');
+        if(name.length<3){
+            //输出警告信息，warn/fatal，fatal无法强制执行
+            grunt.warn('名称不得少于三个字符')
+        }
+        //grunt default:zyh 传递参数，grunt default:zy --force 警告下强制执行
+        grunt.log.write('hello'+ name )
+    });
+
+    grunt.registerTask('greet_1',function () {
+        //获取数据
+        let name=grunt.config.get('greetData.name');
+        grunt.log.writeln('hello '+ name )
+    });
+    grunt.registerTask('greet_2',function () {
+        grunt.log.writeln('hello greet_2')
+    });
+    //执行多个任务
+    grunt.registerTask('greetAll',['greet_1','greet_2']);
+
+    //执行多次任务，grunt greetData 逐个输出greetData的数据
+    // grunt greetData:name 输出指定数据
+    grunt.registerMultiTask('greetData',function () {
+        //target为属性名，data为属性的值
+        grunt.log.writeln(this.target+':'+this.data);
+    });
+
+    // 创建，删除目录
+    grunt.registerTask('createFolders',function () {
+        grunt.file.mkdir('disk/stylesheets')
+    });
+    grunt.registerTask('deleteFolders',function () {
+        grunt.file.delete('disk')
+    });
+
+    //读取，写入文件
+    grunt.initConfig({
+        pkg:grunt.file.readJSON('package.json')
+    });
+    grunt.registerTask('copyright',function () {
+        let content=grunt.template.process('<%= pkg.author %>');
+        grunt.file.write('copyright.txt',content);
+    });
+
+    //复制文件到指定处，安装插件npm install grunt-contrib-copy --save-dev
+    //监听文件，安装插件grunt-contrib-watch
+    //连接服务器，安装插件grunt-contrib-connect
+    //安装插件npm install load-grunt-tasks
+    //将sass编译成css，安装插件grunt-contrib-sass
+    //合并文件，安装插件grunt-contrib-concat
+    //最小化js文件，去掉注释空白等，安装插件grunt-contrib-uglify
+    //最小化css文件，去掉注释空白等，安装插件grunt-contrib-cssmin
+    //最小化image文件，去掉注释空白等，安装插件grunt-contrib-image
+    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-contrib-sass');
+    grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.loadNpmTasks('grunt-contrib-imagemin');
+   // require('load-grunt-tasks')(grunt);  //加载所有的任务，加载单个插件require('grunt-contrib-connect')(grunt)
+    grunt.initConfig({
+        copy:{
+            //将index.html复制到disk文件夹下，执行命令grunt copy:html
+            html:{
+                src:'index.html',dest:'dist/'
+            },
+            //将stylesheet文件夹所有.css文件复制到dist文件夹，执行命令grunt copy:style
+            style:{
+                src: 'stylesheet/*.css',dest: 'dist/'
+            },
+            //将javascript文件夹所有以及子文件夹所有.js文件复制到dist，执行命令grunt copy:js
+            js:{
+                src: 'javascript/**/*.js',dest: 'dist/'
+            }
+        },
+        watch:{
+            html:{
+                //监听index.html，如果发生改变，就会触发复制文件，执行命令grunt watch/watch:html
+                files:['index.html'],
+                tasks:['copy:html'],
+                options:{
+                    //允许实时监控
+                    livereload:true
+                }
+            }
+        },
+        connect:{
+            server:{
+                options:{
+                    //端口8080，浏览器显示dist下index.html文件,执行命令grunt connect:server:keepalive
+                    port: 3000,
+                    base:'dist',
+                    //允许实时连接服务器
+                    livereload:true
+                }
+            }
+        },
+        sass:{
+            dist:{
+                //执行命令grunt sass
+                options:{
+                  style:'expanded'   //编译成css的格式
+                },
+                files: {
+                    'dist/stylesheets/style.css':'dist/stylesheet/style.scss'
+                }
+            }
+        },
+        concat:{
+            js:{
+                options:{
+                    banner:'/*出现在文件开头的内容*/\n',
+                    footer:'/*出现在文件结尾的内容*/'
+                },
+                //要合并的文件
+                src:['javascript/app.js','javascript/modules/module.js'],
+                //合并之后的文件,执行命令grunt concat
+                dest:'dist/javascript/app.js'
+            }
+        },
+        uglify:{
+            dist: {
+                src:'<%= concat.js.dest %>',
+                dest:'dist/javascript/app.min.js'
+            }
+        },
+        cssmin:{
+            dist:{
+                src:'dist/stylesheets/style.css',
+                dest:'dist/stylesheets/style.min.css'
+            }
+        },
+        imagemin:{
+            dist:{
+                expand:true,
+                src:'images/**/*.{ png,jpg }',
+                dest:'dist/images'
+            }
+        }
+    });
+    //实时监控文件变化，并且实时连接服务器
+    grunt.registerTask('Server',['connect','watch']);
+    //将合并后的app.js文件最小化为app.min.js
+    grunt.registerTask('Uglify',['concat','uglify'])
+
+
+
+};
+

@@ -1,0 +1,27 @@
+一、保障部署安全
+1. 创建超级管理员身份和授权
+启动数据库服务，D:\MongoDB\bin>mongod --dbpath D:\MongoDB\data
+打开mongo shell，D:\MongoDB\bin>mongo
+切换到admin管理数据库,db=getSiblingDB('admin')
+创建角色，db.createUser({user:"zhuyinghui",pwd:"123456",roles:["userAdminAnyDatabase"]})
+
+MongoDB可用的角色有：
+read:指定数据库所有集合的只读访问
+readwrite：指定数据库任意集合的读写访问
+dbAdmin：指定数据库中执行管理操作权限，比如ensureIndex、dropIndexes、reIndex、indexStats管理索引、重命名集合、创建集合等
+userAdmin：指定数据库的system.users集合执行readWrite操作权限，对已有用户的权限进行修改或者创建新用户
+clusAdmin：修改或显示与整个系统有关的信息的管理操作授予访问权限，只适用于管理数据库
+readAnyDatabase、readWriteAnyDatabase、userAdminAnyDatabase、dbAdminAnyDatabase有操作任意数据库的权限
+
+重启数据库服务，D:\MongoDB\bin>mongod -auth --dbpath D:\MongoDB\data
+打开mongo shell
+进入admin数据库，use admin
+身份验证，db.auth("zhuyinghui","123456")，打印出1则验证成功
+接着用管理员身份创建其它用户并分配角色和角色
+切换到LifeRecord数据库，use LifeRecord
+创建角色，db.createUser({user:"zyh",pwd:"123",roles:["read"]})
+打开新的mongo shell
+切换到LifeRecord数据库，use LifeRecord
+新角色身份认证，db.auth("zyh","123")
+查询用户数据，db.users.find()
+

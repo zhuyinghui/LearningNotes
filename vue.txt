@@ -1,0 +1,540 @@
+1.计算属性的setter，侦听器
+var vm = new Vue({
+  el: '#demo',
+  data: {
+    firstName: 'Foo',
+    lastName: 'Bar'
+		question:''
+  },
+  computed: {
+   fullName: {
+    get: function () {
+      return this.firstName + ' ' + this.lastName
+    },
+    set: function (newValue) {
+      var names = newValue.split(' ')
+      this.firstName = names[0]
+      this.lastName = names[names.length - 1]
+    }
+		//运行 vm.fullName = 'John Doe' 时，setter 会被调用，
+		//vm.firstName 和 vm.lastName 也会相应地被更新
+  }
+  }
+})
+
+<div id = "computed_props">
+    千米 : <input type = "text" v-model = "kilometers">
+    米 : <input type = "text" v-model = "meters">
+</div>
+<p id="info"></p>
+<script type = "text/javascript">
+    var vm = new Vue({
+    el: '#computed_props',
+    data: {
+        kilometers : 0,
+        meters:0
+    },
+    watch : {
+        kilometers:function(val) {   //val为改变后的值,对data进行更新
+            this.kilometers = val;
+            this.meters = val * 1000;
+        },
+        meters : function (val) {
+            this.kilometers = val/ 1000;
+            this.meters = val;
+        }
+    }
+    });
+    vm.$watch('kilometers', function (newValue, oldValue) {
+    // 这个回调将在 vm.kilometers 改变后调用
+    document.getElementById ("info").innerHTML = "修改前值为: " + oldValue + "，修改后值为: " + newValue;
+})
+</script>
+
+2.绑定class
+data:{
+	isActive:true,
+	hasError:true,
+	classObj:{
+		active:true,
+		'text-danger':true
+	}
+},
+computed: {
+  classObject: function () {
+    return {
+      active: this.isActive && !this.error,
+      'text-danger': this.error && this.error.type === 'fatal'
+    }
+  }
+}
+<div v-bind:class="{ active: isActive }"></div>  
+<div v-bind:class="{ 'text-danger': hasError }"></div>  //绑定单个样式
+<div v-bind:class="classObj"></div>  //绑定一个对象，包括多个样式
+<div v-bind:class="classObject"></div>  //绑定一个返回对象的计算属性，常用且强大
+<div v-bind:class="[isActive ? active, 'errorClass']"></div>  //三元表达式
+
+3.绑定style
+data: {
+  styleObj: {
+    color: 'red',
+    fontSize: '13px'
+  }
+}，
+computed: {
+  classObject: function () {
+    return {
+      color：'red',
+			fontSize:13px
+    }
+  }
+}
+<div v-bind:style="styleObj"></div>  //绑定一个对象
+<div v-bind:style="[baseStyles, overridingStyles]"></div>  //绑定多个对象
+<div v-bind:style="styleObject"></div>   //绑定一个返回对象的计算属性
+
+3.多重值，常用于提供多个带前缀的值
+<div :style="{ display: ['-webkit-box', '-ms-flexbox', 'flex'] }"></div>
+
+4.用key管理可复用的元素
+<template v-if="loginType === 'username'">
+  <label>Username</label>
+  <input placeholder="Enter your username" key="username-input">
+</template>
+<template v-else>
+  <label>Email</label>
+  <input placeholder="Enter your email address" key="email-input">
+</template>
+//若无key属性，不会清除用户已输入的内容，<input>不会被替换掉仅仅替换了它的placeholder
+
+5.v-show 只是简单地切换元素的 CSS 属性 display，不支持<template>元素
+v-if 有更高的切换开销，而 v-show 有更高的初始渲染开销。因此，如果需要非常频繁地切换，
+则使用 v-show 较好；如果在运行时条件很少改变，则使用 v-if 较好。
+
+6.v-for
+data: {
+    object: {
+      firstName: 'John',
+      lastName: 'Doe',
+      age: 30
+    }
+  }
+<div v-for="(value, key, index) in object">
+  {{ index }}. {{ key }}: {{ value }}
+</div>
+<div v-for="item in items" :key="item.id"></div> 
+//为了给 Vue 一个提示，以便它能跟踪每个节点的身份，从而重用和重新排序现有元素
+//你需要为每项提供一个唯一 key 属性
+
+7.数组更新
+push(),pop(),shift(),unshift(),splice(),sort(),reverse() //原数组改变
+vm.items.push()
+slice(),concat(),fiter()  //原数组未变，生成新数组
+vm.items=vm.items.concat([...])
+
+注意：由于 JavaScript 的限制，Vue 不能检测以下变动的数组：
+	当你利用索引直接设置一个项时，例如：vm.items[indexOfItem] = newValue
+	当你修改数组的长度时，例如：vm.items.length = newLength
+Vue.set(vm.items, indexOfItem, newValue)
+vm.$set(vm.items, indexOfItem, newValue)
+vm.items.splice(indexOfItem, 1, newValue)  //修改指定项的值
+vm.items.splice(newLength)  //设置数组长度
+
+8.对象更新
+Vue.set(vm.object, 'age', 27)  
+vm.$set(vm.object, 'age', 27)  //给object对象添加age属性
+vm.object = Object.assign({}, vm.object, {
+  age: 27,
+  favoriteColor: 'green'
+})  //给object对象增添多个属性
+
+9.显示过滤/排序结果
+<li v-for="n in evenNumbers">{{ n }}</li>
+data: {
+  numbers: [ 1, 2, 3, 4, 5 ]
+},
+computed: {
+  evenNumbers: function () {
+    return this.numbers.filter(function (number) {
+      return number % 2 === 0
+    })
+  }
+}  //创建返回过滤或排序数组的计算属性
+<li v-for="n in even(numbers)">{{ n }}</li>
+data: {
+  numbers: [ 1, 2, 3, 4, 5 ]
+},
+methods: {
+  even: function (numbers) {
+    return numbers.filter(function (number) {
+      return number % 2 === 0
+    })
+  }
+}  //使用方法过滤或者排序
+
+10.当v-for和v-if处于同一节点，v-for 的优先级比 v-if 更高，这意味着 v-if 
+将分别重复运行于每个 v-for 循环中。
+<li v-for="todo in todos" v-if="!todo.isComplete">
+  {{ todo }}
+</li>
+如果你的目的是有条件地跳过循环的执行，那么可以将 v-if 置于外层元素 
+(或 <template>)上。
+<ul v-if="todos.length">
+  <li v-for="todo in todos">
+    {{ todo }}
+  </li>
+</ul>
+<p v-else>No todos left!</p>
+
+11.事件处理
+<button v-on:click="warn('Form cannot be submitted yet.', $event)">
+  Submit
+</button>
+methods: {
+  warn: function (message, event) {
+    if (event) event.preventDefault() //访问原生事件对象，event.preventDefault()或event.stopPropagation()
+    alert(message)
+  }
+}
+
+11.事件修饰符
+@click.stop="dothis" //阻止单击事件继续传播
+<form @submit.prevent="onsubmit"></form> //提交事件不再重载页面
+@click.capture="dothis" //元素自身触发的时间先在此处理，然后才交由内部元素处理
+@click.self="dothis" //当前元素为事件源才触发函数
+@click.once="dothis" //单击事件只被触发一次
+@scroll.passive="onScroll" //提升移动端的性能，不能和.prevent一起使用
+
+12.按键修饰符
+@keyup.13="submit"
+@keyup.enter="submit"
+全部按键别名：enter,tab,delete,esc,space,up,down,left,right
+自定义按键修饰别名：Vue.config.keyCodes.f1 = 112
+仅在按下相应按键时才触发鼠标或键盘事件的监听器:ctrl,alt,shift,meta
+@keyup.alt.67="clear"  //Alt+C
+@click.ctrl="dothis"  //Ctrl+click
+@click.ctrl.exact="onCtrlClick"  //有且只有Ctrl被按下的时候才触发
+@click.exact="onclick"  //没有任何系统修饰符被按下的时候触发
+鼠标修饰符：left,right,middle
+
+13.表单输入绑定
+文本
+<input v-model="message">等同于
+<input v-bind:value="message" v-on:input="message=$event.target.value">
+在组件上使用v-model
+Vue.component('custom-input', {
+  props: ['value'],
+  template: `
+    <input
+      v-bind:value="value"
+      v-on:input="$emit('input', $event.target.value)"
+    >
+  `
+})
+<custom-input v-model="searchText"></custom-input>
+<textarea v-model="message"></textarea>
+复选框，checked为布尔值，checkedNames为数组
+<input type="checkbox" v-model="checked">  //单个
+<input type="checkbox" v-model="toggle" true-value="yes" false-value="no">
+//选中时，vm.toggle==='yes'，当没有选中的，vm.toggle==='no'
+<input type="checkbox" value="Jack" v-model="checkedNames"> 
+<input type="checkbox" value="John" v-model="checkedNames">
+<input type="checkbox" value="Mike" v-model="checkedNames"> //多个
+单选按钮
+<input type="radio" value="One" v-model="picked">
+<input type="radio" value="Two" v-model="picked">
+<input type="radio" v-model="pick" v-bind:value="a"> 
+//当选中时，vm.pick===vm.a
+选择框
+<select v-model="selected" multiple>
+	<option disabled value="">请选择</option>
+	<option>A</option>
+	<option>B</option>
+	<option>C</option>
+</select>
+<select v-model="selected">
+  <option v-for="option in options" v-bind:value="option.value">
+    {{ option.text }}
+  </option>
+</select>
+修饰符：.lazy 输入框的值改变时与数据同步,.number 转化为数值,.trim 忽略收尾空白,
+<input v-model.number="age" type="number">
+
+14.prop接收数据
+父组件向子组件传值
+<blog-post v-for="post in posts" v-bind:key="post.id" v-bind:post="post">
+</blog-post>
+Vue.component('blog-post', {
+  props: ['post'],
+  template: `
+    <div class="blog-post">
+      <h3>{{ post.title }}</h3>
+      <div v-html="post.content"></div>
+    </div>
+  `
+})
+子组件向父组件传值
+<div id="blog-posts-events-demo"> 
+  <div :style="{ fontSize: postFontSize + 'em' }">
+    <blog-post  
+      v-for="post in posts"
+      v-bind:key="post.id"
+      v-bind:post="post"
+			v-on:enlarge-text="postFontSize += $event">	//父组件绑定表达式事件,接收参数值
+			// v-on:enlarge-text="onEnlargeText"  绑定一个方法
+			//methods: {
+			//		onEnlargeText: function (enlargeAmount) {
+			//			this.postFontSize += enlargeAmount}}
+    </blog-post>
+  </div>
+</div>
+Vue.component('blog-post', {  
+  props: ['post'],
+  template: `
+    <div class="blog-post">
+      <h3>{{ post.title }}</h3>
+      <button v-on:click="$emit('enlarge-text',0.1)">
+        Enlarge text
+      </button> //子组件触发父组件的事件，并传递参数值
+      <div v-html="post.content"></div>
+    </div>
+  `
+})
+
+15.通过插槽分发内容
+<alert-box>Something bad happened.</alert-box>
+Vue.component('alert-box', {
+  template: `
+    <div class="demo-alert-box">
+      <strong>Error!</strong>
+      <slot></slot>
+    </div>
+  `
+})
+
+<div class="container">
+  <header>
+    <slot name="header"></slot>
+  </header>
+  <main>
+    <slot></slot>
+  </main>
+  <footer>
+    <slot name="footer"></slot>
+  </footer>
+</div>
+<base-layout>
+  <template slot="header">
+    <h1>Here might be a page title</h1>
+  </template>
+  <p>A paragraph for the main content.</p>
+  <p>And another one.</p>
+  <template slot="footer">
+    <p>Here's some contact info</p>
+  </template>
+</base-layout>
+
+16.动态组件
+<component v-bind:is="currentTabComponent"></component>
+
+17.Prop
+接收
+数组props: ['title', 'likes']
+对象props: {title: String,id: Number}
+传值
+:num="42"
+:title="post.title"
+:istitle="false"
+:array="[20,55,45]"
+:author="{name:'zyh',age:21}"
+<blog-post v-bind="post"></blog-post> //传对象的所有属性
+<blog-post v-bind:id="post.id" v-bind:title="post.title"></blog-post>
+阻止子组件内部修改prop
+props: ['initialCounter'],
+data: function () {
+  return {
+    counter: this.initialCounter
+  }
+}
+props: ['size'],
+computed: {
+  normalizedSize: function () {
+    return this.size.trim().toLowerCase()
+  }
+}
+
+18.Prop验证
+ props: {
+    propA: Number,  // 基础的类型检查 (`null` 匹配任何类型)
+    propB: [Boolean,Array,Date,Function,Symbol],  // 多个可能的类型
+    propC: {  // 必填的字符串
+      type: String,
+      required: true
+    },
+    propD: {   // 带有默认值的数字
+      type: Number,
+      default: 100
+    },
+    propE: {     // 带有默认值的对象
+      type: Object,
+      default: function () {
+        return { message: 'hello' }
+      }
+    },
+    propF: {    // 自定义验证函数
+      validator: function (value) {
+        return ['success', 'warning', 'danger'].indexOf(value) !== -1
+      }
+    }
+  }
+
+19.访问元素或组件
+子组件访问根实例
+new Vue({
+	data:{ foo:1 }
+})  
+this.$root.foo
+子组件访问父组件实例  
+this.$parent
+访问子组件实例或子元素
+<base-input ref="usernameInput"></base-input>
+this.$refs.usernameInput
+
+20.路由
+<div id="app">
+  <h1>Hello App!</h1>
+  <p>
+    <router-link to="/foo">Go to Foo</router-link>
+    <router-link to="/bar">Go to Bar</router-link>
+  </p>
+  <router-view></router-view>
+</div>
+//定义组件
+const Foo = { template: '<div>foo</div>' }
+const Bar = { template: '<div>bar</div>' }
+//定义路由
+const routes = [
+  { path: '/foo', component: Foo },
+  { path: '/bar', component: Bar }
+]
+//创建router实例
+const router = new VueRouter({
+  routes
+})
+//创建和挂载根实例
+const app = new Vue({
+  router
+}).$mount('#app')
+
+路由传参 to,内部会立刻把 to 的值传到 router.push()
+<router-link :to="{ name: 'user', params: { userId: 123 }}">User</router-link>
+<router-link :to="{ path: 'user', query: { userId: 123 }}">User</router-link>
+//  相当于/user?userId=123
+<router-link :to="{ path: '/abc'}" replace></router-link>
+//replace会调用router.replace() 而不是 router.push()，导航后不会留下history记录
+<router-link :to="{ path: 'relative/path'}" append></router-link>
+//append在当前(相对)路径前添加基路径。
+<router-link to="/foo" tag="li">foo</router-link>
+//将<router-link>渲染成某种标签
+<router-link v-bind:to = "{ path: '/route1'}" active-class = "classname">Router Link 1</router-link>
+//设置链接激活时使用的css类名
+<router-link v-bind:to = "{ path: '/route2'}" exact-active-class = "_active">Router Link 2</router-link>
+//配置当链接被精确匹配的时候应该激活的 class
+<router-link v-bind:to = "{ path: '/route3'}" event = "mouseover">Router Link 3</router-link>
+//声明可以用来触发导航的事件
+
+21.混入
+var mixin = {
+    methods: {
+        hellworld: function () {
+            document.write('HelloWorld 方法' + '<br>');
+        },
+        samemethod: function () {
+            document.write('Mixin：相同方法名' + '<br>');
+        }
+    }
+};
+var vm = new Vue({
+    mixins: [mixin],
+    methods: {
+        start: function () {
+            document.write('start 方法' + '<br>');
+        },
+        samemethod: function () {  //Vue实例的优先级高于混入对象，所以执行此函数
+            document.write('Main：相同方法名' + '<br>');
+        }
+    }
+});
+vm.hellworld();vm.start();vm.samemethod();
+输出结果：
+HelloWorld 方法
+start 方法
+Main：相同方法名
+
+22.Get请求
+window.onload = function(){
+    var vm = new Vue({
+        el:'#box',
+        data:{
+            msg:'Hello World!',
+        },
+        methods:{
+            get:function(){
+                //发送get请求
+                this.$http.get('...api').then(function(res){
+                    document.write(res.body);    
+                },function(){
+                    console.log('请求失败处理');
+                });
+            }
+        }
+    });
+}
+//传递数据jsonData
+this.$http.get('get.php',jsonData).then(function(res){
+    document.write(res.body);    
+},function(res){
+    console.log(res.status);
+}); 
+
+23.post请求
+window.onload = function(){
+    var vm = new Vue({
+        el:'#box',
+        data:{
+            msg:'Hello World!',
+        },
+        methods:{
+            post:function(){
+                //发送 post 请求
+                this.$http.post('...api',jsonData,{emulateJSON:true}).then(function(res){
+                    document.write(res.body);    
+                },function(res){
+                    console.log(res.status);
+                });
+            }
+        }
+    });
+}	}
+
+24.Vue-resource提供的7种请求API
+get(url, [options])
+head(url, [options])
+delete(url, [options])
+jsonp(url, [options])
+post(url, [body], [options])
+put(url, [body], [options])
+patch(url, [body], [options])
+
+25.响应接口
+Vue.set(target,key,value) //对象，属性，值
+Vue.delete(target,key)
+
+26.Element的使用
+http://element-cn.eleme.io/#/zh-CN/component/quickstart
+安装
+npm i element-ui -S
+引用
+import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css';
+Vue.use(ElementUI);

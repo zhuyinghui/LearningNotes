@@ -1,0 +1,191 @@
+1.安装完成后
+git config --global user.name "Your Name"
+git config --global user.email "email@example.com"
+
+2.cmd打开指定根目录(D:\git\repository\learngit)，把根目录变成Git可以管理的仓库
+git init
+
+3.下载Notepad++，用于纯文本编辑，使用编码UTF-8 without BOM
+
+4.编写一个readme.txt文件用作示例，保存到根目录下
+
+5.把要提交的所有修改添加到暂存区（stage）
+git add readme.txt
+
+6.一次性把暂存区的所有修改提交到当前分支（master分支），-m后是说明
+git commit -m "wrote a readme file"
+
+7.修改readme.txt，并且用命令查看是否有文件被修改，掌握仓库当前状态
+git status
+
+8.查看readme.txt被修改的地方
+git diff readme.txt 
+
+9.重新把修改后的文件添加到master分支
+git add readme.txt
+git commit -m "add distributed"
+
+10.查看从最近到最远的提交日志
+git log（commit id、作者、时间、说明）
+git log --pretty=online（commit id、说明）
+
+11.回退到上一个版本
+git reset --hard HEAD^
+
+12.在工作区修改/删除文件后，要取消修改/删除
+将修改提交到暂存区后，修改从暂存区中移除
+git checkout -- readme.txt
+
+13.从版本库中删除文件
+git rm readme.txt
+git commit -m "remove readme.txt"
+
+
+远程仓库
+1.创建SSH Key
+git安装目录下打开git-bash.exe输入$ ssh-keygen -t rsa -C "youremail@example.com"
+id_rsa是私钥，不能泄露出去，id_rsa.pub是公钥，钥匙目录C:\Users\Administrator\.ssh
+
+2.登录GitHub，右上角，Settings，SSH and GPG keys，填上任意Title，在Key文本框里粘贴id_rsa.pub文件的内容
+
+3.创建GitHub仓库，右上角，new repositogit
+ry，命名learngit，成功创建
+
+4.cmd到本地仓库根目录，远程连接GitHub仓库，origin为远程库的名字
+git remote add origin git@github.com:zhuyinghui/learngit.git
+gitgit remote origin git@github.com:zhuyinghui/MiaowuWeb.git
+5.把本地库的所有内容推送到远程库
+git push -u origin master（第一次连接）
+git push origin master
+
+6.将远程库里的项目文件克隆到本地
+git clone git@github.com:zhuyinghui/HelloWorld.git
+
+
+分支管理
+1.创建dev分支，然后切换到dev分支
+git checkout -b dev
+相当于
+git branch dev（创建分支）
+git checkout dev（切换到分支）
+
+2.查看当前分支
+git branch
+
+3.修改readme.txt，并将修改提交到dev分支
+git add readme.txt
+git commit -m "branch test"
+
+4.切换到master分支，发现刚做的修改是没有的，因为修改被提交到了dev分支
+git checkout master
+
+5.将dev分支合并到master分支上
+git merge dev（Fast forward模式）
+git merge --no--ff -m "merge with no-ff" dev（禁用Fast forward）
+
+6.删除dev分支
+git branch -d dev
+
+7.查看分支历史
+git log --graph --pretty=oneline --abbrev-commit
+
+8.bug分支
+在dev分支上的文件正在进行编写，还未提交到暂存区，但要对master分支上的bug进行修复
+先把工作区的工作进程保存，修复bug后恢复进程
+保存进程 git stash
+git checkout master
+新建并切换到issue-101分支，修改bug文件，将issue-101分支合并到master分支，删除issue-101分支
+git checkout dev
+查看保存的进程 git stash list
+恢复进程 git stash apply , git stash drop 或者 git stash pop
+恢复指定的进程 git stash apply stash@{0}
+
+9.feature分支
+feature分支和bug分支类似
+同样的是新增分支，然后准备合并到主分支，但是在合并之前要删掉新增的feature分支
+git branch -d feature
+提示销毁失败，因为修改还未被提交，需要强制删除
+git branch -D feature
+
+
+多人协作
+1.查看远程库的信息
+git remote
+git remote -v
+
+2.把本地分支推送到远程库对应的远程分支上
+git push origin master
+
+3.需要远程推送的分支
+主分支 master  开发分支 dev
+
+4.克隆远程库时，默认只能看到本地的master分支，创建远程origin的dev分支到本地
+git checkout -b dev origin/dev
+
+5.将dev分支推送到远程库，推送失败，因为其他人也对同样的文件做了修改
+git push origin dev（推送失败）
+先用git pull把最新的提交从origin/dev抓下来，然后在本地合并，解决冲突在推送
+
+6.git pull失败，要先连接本地dev分支与远程origin/dev分支
+git branch --set-upstream-to=origin/dev dev
+git pull
+
+7.rebase操作把本地未push的分叉提交历史整理成直线，并查看
+git rebase 
+git log --graph --pretty=oneline --abbrev-commit
+
+标签管理
+1.给master分支打一个新标签
+git checkout master
+git tag v1.0
+
+2.查看所有标签
+git tag
+
+3.给commit id为f52c6334的提交打标签
+git tag v0.9 f52c6334
+
+4.查看标签信息
+git show v0.9
+
+5.创建带有说明的标签
+git tag -a v0.8 -m "version 0.8 released" 1094abd
+
+6.删除本地标签
+git tag -d v0.1
+
+7.推送标签到远程
+git push origin v1.0
+git push origin --tags
+
+8.删除远程标签
+git tag -d v0.9
+git push origin :ref/tags/v0.9
+
+9.参与他人的开源项目
+进入项目主页，点击Fork，就克隆了仓库到自己的账号
+在自己的账号下克隆仓库到本地
+如果希望官方仓库接受你的修改，要在GitHub上发起pull request
+
+
+自定义Git
+1.忽略特殊文件
+在Git工作区根目录下创建一个特殊文件.gitignore
+官方配置文件 https://github.com/github/gitignore
+
+2.配置别名
+将git status简写成git st
+git config --global alias.st status
+
+3.配置文件
+C:\Users\Administrator\.gitconfig
+
+
+将现有项目添加到GitHub
+git init
+git remote origin git@github.com:zhuyinghui/MiaowuWeb.git //第一次连接
+git clone git@github.com:zhuyinghui/MiaowuWeb.git
+git add . 
+git commit -m “comment” 
+git push origin master
+

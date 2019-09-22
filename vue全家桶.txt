@@ -1,0 +1,262 @@
+1. 全家桶技术多用到的技术栈
+	项目构建工具vue-cli，路由vue-router，状态管理vuex，http请求工具axios
+
+2. 前后端联调必备技术Mock，处于开发坏境模拟接口返回数据，axios插件模拟请求完成注册
+	module.export={
+		configureWebpack:{
+			devServer:{
+				before(app){
+					//模拟数据库中用户的账号密码
+					let userInfo=[
+						{username:'zyh',password:'123'},
+						{username:'zyh2',password:'1234'}
+					}
+					//定义注册的接口，验证用户名是否以及存在
+					app.get('/api/userInfo',(req,res)=>{
+						const {username,password}=req.query
+						const length=userInfo.filter(item=>item.username===username)
+						if(length>0){
+							res.json({
+								success:false,
+								message:'用户名已存在'
+							})
+						}else{
+							res.json({
+								success:true
+								message:'注册成功'
+							})
+						}
+					})
+					//定义登录接口
+					const tokenkey='zyhclass'
+					app.get('/api/userInfo',(req,res)=>{
+						const {username,password}=req.query
+						const length=userInfo.filter(item=>item.username===username&&item.password===password)
+						if(length>0){
+							res.json({
+								code:0,
+								message:'登录成功',
+								//token用来标记用户的身份，可根据其身份来获取权限
+								token:tokenkey+'-'+username+'-'+(new Date().getTime()+60*60*100)
+							})
+						}else{
+							res.json({
+								code:1
+								message:'账号或者密码错误'
+							})
+						}
+					})
+				}
+			}
+		}
+	}
+	import axios from 'axios'
+	Vue.prototype.$http=axios
+	//注册请求
+	this.$http.get('/api/userInfo',{params:this.user}).then(res=>{
+		console.log(res.data.success)
+	}).catch(err=>{
+		console.log(err)
+	})
+	//登录异步请求
+	async submit(){
+		try{
+			const result=awaite this.$http.get('/api/userInfo',{params:this.user}).then(res=>{
+				if(result.data.code===0){
+					//将请求返回的token存入vux的state中和本地
+					this.$store.commit('settoken',result.data.token)
+					window.localStorage.setItem('token',result.data.token)
+					alert(result.data.message)
+				}else{
+					alert(result.data.message)
+				}
+			})
+		}catch(err){
+			consle.log(err)
+		}
+	}
+	
+3. 项目搭建
+	安装nodejs，node -v检验版本号
+	安装webpack，npm install webpack -g
+	安装vue-cli 2.x，npm install vue-cli -g
+	创建项目，vue init webpack projectName
+	运行项目，npm run dev
+	（ 或者安装vue-cli 3.x , npm install @vue/cli -g
+	创建项目，vue create projectName
+	运行项目，npm run serve ）
+
+4. vue-cli 3.x 的项目结构与vue-cli 2.x有较大不同，需要自己新建一个vue.config.js文件来添加你需要修改的配置
+	module.export={
+		configWebpack:{
+			devServer:{
+			port:8081 //修改端口
+			open:true //运行项目时自动打开窗口
+			}
+		}
+	}
+
+5. 选择ui库
+	PC端--ElementUI
+	移动端--vant cube-ui
+	移动端选择ui库的要点：
+	能否自定义皮肤，
+	是否使用rem控制尺寸完美适应不同分辨率移动设备，
+	组件类型风格是否与自己的项目相同或类似，
+
+6. 代码规范
+	路由懒加载 component：()=>import('./views/Login.vue')
+	不能直接修改state的值，应该通过mutation方法来修改
+	获取state数据采用:
+	import mapState from 'vuex'
+	computed:{
+		...mapState({
+			name:state=>state.name
+		})
+	}
+	
+	
+7. axios请求拦截配置
+	（setaxios.js）
+	import axios from 'axios'
+	import store from './store'
+	import router from './router'
+	export default function setAxios(){
+		//每次请求发出的时候都会经过此拦截
+		axios.interceptors.request.use(
+			config=>{
+				if(store.state.token){
+					config.headers.token=store.state.token
+				}
+			}
+			return config
+		)
+		//每次数据返回的时候都先经过此拦截器
+		axios.interceptors.response.use(
+			response=>{
+				if(response.status===200){
+					//上面的result.data.code都能直接写成result.code
+					const data=response.data
+					if(data.code===-1){
+						//登录过期，清空vuex中的token和本地存储的token信息，并跳转到登录页面
+						store.commit('settoken','')
+						localStorage.removeItem('token')
+						router.replace({path:'/login'})
+					}
+				}
+			}
+		)
+	}
+
+8. 路由改变时，组件的滑动效果
+	<transition :name="transitionName">
+		<router-view class="Router"></router>
+	</transition>
+	<script>
+		data(){
+			return{ transitionName:'slide-right' }
+		}
+	</script>
+	<style>
+		.Router{
+			position:absolute; width:100%; transition:all 0.8s ease;
+		}
+		.slide-left-enter,.slide-right-leave-active{
+			opacity:0; transform:translate(100%,0); 
+		}
+		.slide-left-leave-active,.slide-right-enter{
+			opacity:0; transform:translate(-100%,0); 
+		}
+	</style>
+	
+9. 路由守卫，相当于全局拦截，路由刷新或者改变时都会先进入此拦截
+	(router.js)
+	{
+		path:'/shopcar',
+		meta:{ requireAuth:true }, //访问此页面需要权限
+		component：shopcar
+	}
+	(main.js)
+	router.beforeEach((to,from,next)=>{
+		store.commit('settoken',localStorage.getItem('token')) //将本地token值传给state的token值
+		if(to.meta.requireAuth){
+			if(store.state.token){
+				next()
+			}else{
+				next({path:'/login',query:{redirect:to.fullPath}})
+			}
+		}else{
+			next()
+		}
+		//如果目的页面需要访问权限，并且token存在的话，就成功跳转目的页面，
+		//如果目的页面需要访问权限，并且token不存在的话，就跳转到登陆页面，传递了参数，值为目的页面的路由
+		//如果目的页面不需要访问权限，直接跳转目的页面
+	})
+	(login.vue)
+	if(this.$route.query.redirect){
+		this.$router.replace({path:this.$route.query.redirect})
+	}else{
+		this.$router.replace({path:'/home'})
+	}
+	 //在登录页面进行判断，如果/login后面有参数，登陆成功后跳转到参数所指路由
+	 //如果没有参数，那么跳转到首页
+	 
+10. 实现每次重新运行购物车数据不丢失
+	state:{
+		//从本地获取购物车数据
+		shopcarData:JSON.parse(localStorage.getItem('shopcarData'))||[]
+	}
+	//监听mutations，一旦有方法被调用，就执行此操作
+	store.subscribe((mutations,state)=>{
+		//将购物车的数据实时添加到本地
+		localStorage.setItem('shopcarData',JSON.stringify(state.shopcarData))
+	})
+
+11. 关于优化首屏加载
+	将公用JS库通过script标签在index.html进行外部引用，减少打包出来的js文件大小，让浏览器并行下载资源文件，提高下载速度
+	在配置路由的时候进行路由的懒加载
+	加一个首屏loading图或骨架屏，提高用户体验
+	尽可能使用CSS Sprites和字体图标库
+	图片懒加载
+	
+12. 从输入网址到网页渲染完成的过程
+	输入网址按回车或点击跳转
+	发送到DNS服务器进行解析，获取到对应的服务器的IP地址
+	与web服务器建立TCP连接
+	浏览器向web服务器发送HTTP请求
+	web服务器进行相应请求并返回指定url数据
+	浏览去下载web服务器返回的数据及解析html源文件
+	根据文件生成dom树和样式树合成渲染树，解析js，最后渲染页面显示出来
+	
+13. 中高级前端学习
+	html5
+	css3
+	js
+	es6
+	ps切图
+	vue/react/angular
+	小程序生态
+	webpack
+	http知识
+	node.js
+	express/koa
+	Linux
+	mysql/mongoDB/redis
+	Git和持续集成
+	Docker
+	JS高级
+	前端性能优化
+	浏览器知识
+	前端安全性问题
+	项目实战
+	
+
+
+
+
+
+
+
+
+
+

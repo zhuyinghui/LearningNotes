@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>设计模式的学习</title>
+</head>
+<body>
+<details>
+    <summary>链式调用/添加方法</summary>
+    <h4>链式调用</h4>
+    示例：<button onclick="fn1_1()">结果</button>
+    <h4>链式添加</h4>
+    示例：<button onclick="fn1_2()">结果</button>
+</details>
+<details>
+    <summary>私有属性、私有方法、特权方法、对象公有属性、对象公有方法、构造器</summary>
+    <p>特权方法，通过this创建的方法，不仅可以访问对象的公有属性和方法，还能访问类或对象自身的私有属性和方法。创建对象时调用的特权方法看做类的构造器。</p>
+    <p>通过this创建的属性可看做是对象的公有属性和方法。</p>
+    示例：<button onclick="fn2_1()">结果</button>
+</details>
+<details>
+    <summary>原型链继承</summary>
+    <h4>类式继承 Child.prototype=new Parent()</h4>
+    <p>Parent类的实例对象继承了类的构造函数属性方法和原型属性方法，赋值给Child类的原型，Child类的实例对象可以访问到Parent类的构造函数属性方法和原型属性方法。</p>
+    <p>缺点：创建父类实例时无法向父类传递参数，因此无法在实例化父类的时候对父类构造函数内的属性进行初始化。</p>
+    示例：<button onclick="fn2_2()">结果</button>
+    <h4>构造函数继承 Parent.call(this,id)</h4>
+    <p>缺点：子类只继承了父类的构造函数属性和方法，未继承原型的属性和方法。</p>
+    示例：<button onclick="fn2_3()">结果</button>
+    <h4>★组合模式 两者结合</h4>
+    <p>类式继承，完成父类的构造函数属性方法和原型属性方法的继承。
+    构造函数继承，完成父类的构造函数属性方法的继承和参数传递。
+        缺点：子类不是父类的实例，子类的原型是父类的实例。父类的构造函数被调用了两次。
+    </p>
+    <pre>
+        let Parent=function (name,age) {
+            this.name=name;
+            this.age=age;
+            this.say=function () {
+                console.log('Parent:'+this.name+this.age)
+            };
+             console.log('父类构造函数被调用了');
+        };
+        Parent.prototype={
+            run(){
+                console.log(this.name+' is running...')
+            }
+        };
+        let Child=function (name,age) {
+            Parent.call(this,name,age);
+        };
+        Child.prototype=new Parent();
+        let son=new Child('Tom',8);
+        son.run();
+        son.say();
+    </pre>
+    示例：<button onclick="fn2_4()">结果</button>
+    <h4>原型式继承，类式继承的一个封装</h4>
+    <p>原理同let o=Object.create(object);<br>
+        创建一个空类F，将object对象复制给F的原型，返回F的实例对象。即传入一个object对象，返回一个原型为object对象的空实例对象。</p>
+    示例：<button onclick="fn2_5()">结果</button>
+    <h4>寄生式继承</h4>
+    <p>寄生式继承，是原型继承的第二次封装，对继承对象进行了扩展，除了父类属性和方法还有有自己的属性和方法</p>
+    <h4>★★寄生组合式继承</h4>
+    <p>构造函数继承，完成父类的构造函数属性方法的继承和参数传递。
+    寄生式继承，完成父类的原型属性方法的继承。
+    </p>
+    <pre>
+     let inheritObj=function (obj) {
+        function F() {}
+        F.prototype=obj;
+        return new F();
+    };
+    let inheritPro=function(Child,Parent){
+        let o=inheritObj(Parent.prototype);
+        Child.prototype=Object.getPrototypeOf(o);
+    };
+    let Parent=function (name,age) {
+        this.name=name;
+        this.age=age;
+        this.say=function () {
+            console.log('Parent:'+this.name+this.age)
+        };
+        console.log('父类构造函数被调用了')
+    };
+    Parent.prototype={
+        run(){
+            console.log(this.name+' is running...')
+        }
+    };
+    let Child=function (name,age) {
+        Parent.call(this,name,age);
+        this.sex='男';
+    };
+    inheritPro(Child,Parent);
+    Child.prototype.getSex=function(){
+        console.log(this.sex)
+    };
+    let c=new Child('Tom',4);
+    console.log(c);
+    c.run();
+    c.getSex();
+    </pre>
+    示例：<button onclick="fn2_6()">结果</button>
+    <h4>多继承</h4>
+    <p>单继承，即对一个对象的属性复制过程,只能复制值类型的数据，对于引用类型的属性无能为力。
+        多继承则是对多个对象属性复制的过程。</p>
+    示例：<button onclick="fn2_7()">结果</button>
+</details>
+<details>
+    <summary>Class类继承</summary>
+    <h4>extends继承</h4>
+    <p>类的所有方法都定义在类的prototype属性上。<br>
+    使用Object.assign(Parent.prototype,{ fly(){} })给类的原型添加方法<br>
+        类的所有实例共享一个原型对象。<br>
+        静态方法不会被实例继承，而是直接通过类来调用，静态方法中的this指向类，而不是实例。
+    </p>
+    <p>
+        子类的原型是父类Object.getPrototypeOf(Child)===Parent
+    </p>
+    示例：<button onclick="fn3_1()">结果</button>
+    <h4>super关键字</h4>
+    <p>作为函数时，super()只能用于子类的构造函数中。</p>
+    <p>super作为对象时，在普通方法中，指向父类的原型对象；在静态方法中，指向父类。
+    super指向父类的对象，因此定义在父类实例上的方法和属性，是无法通过super调用的。
+    </p>
+    <p>在子类普通方法中通过super调用父类原型方法时，方法内部的this指向当前子类实例。
+        由于this会指向子类实例，，所以如果通过super对某个属性赋值，这时super就是this，赋值的属性会
+        变成子类实例的属性。
+    </p>
+    <p>
+        在子类静态方法中通过super调用父类静态方法时，方法内部的this指向当前子类。
+    </p>
+    示例：<button onclick="fn3_2()">结果</button>
+    <h4>类的prototype属性和__proto__属性</h4>
+    <p>
+        子类的__proto__属性，表示构造函数的继承，总是指向父类。
+        子类prototype属性的__proto__属性表示方法的继承，总是指向父类的prototype属性。
+    </p>
+    <p>
+        Child.__proto__===Parent  //true <br>
+        Child.prototype.__proto__===Parent.prototype  //true
+    </p>
+</details>
+<details>
+    <summary>简单工厂模式，又称静态工厂方法</summary>
+    <p>第一种，用switch条件语句，根据变量创建不同类的实例。</p>
+    示例：<button onclick="fn4_1()">结果</button>
+    <p>第二种，通过创建一个新对象然后包装增强其属性和功能。</p>
+    示例：<button onclick="fn4_2()">结果</button>
+</details>
+<details>
+    <summary>工厂方法模式</summary>
+    <p>通过对产品类的抽象使其创建业务主要负责用于创建多类产品的实例。</p>
+    <div id="factory"></div>
+    示例：<button onclick="fn4_3()">结果</button>
+</details>
+<details>
+    <summary>抽象工厂模式</summary>
+    <p>通过对类的工厂抽象使其业务用于对产品类簇的创建，而不负责创建某一类产品的实例。</p>
+    <p>抽象类中定义的方法只是显示地定义一些功能，但没有具体的实现。</p>
+    示例：<button onclick="fn4_4()">结果</button>
+</details>
+<details>
+    <summary>建造者模式</summary>
+    <p>将一个复杂的构建层与其表示层相互分离，同样的构建过程可采用不同的表示。</p>
+    示例：<button onclick="fn4_5()">结果</button>
+</details>
+<details>
+    <summary>单例模式</summary>
+    <p>又被称为单体模式，是只允许实例化一次的对象类，有时也用一个对象来规划一个命名空间，井井有条地管理对象上的属性和方法。</p>
+    <h4>函数式添加样式</h4>
+    <div id="fnstyle">div</div>
+    示例：<button onclick="fn5_1()">结果</button>
+    <h4>命名空间的管理</h4>
+    <div id="namespace">div</div>
+    示例：<button onclick="fn5_2()">结果</button>
+    <h4>多个模块分明</h4>
+    示例：<button onclick="fn5_3()">结果</button>
+    <h4>无法修改的静态变量</h4>
+    示例：<button onclick="fn5_4()">结果</button>
+    <h4>惰性单例</h4>
+    示例：<button onclick="fn5_5()">结果</button>
+</details>
+<details>
+    <summary>外观模式</summary>
+    <p>为一组复杂的子系统接口提供一个更高级的统一接口，通过这个接口使得子系统接口的访问更容易。</p>
+    <h4>添加事件的兼容方法</h4>
+    <input id="myinput" type="button" value="按钮"/>
+    示例：<button onclick="fn6_1()">运行</button>
+</details>
+</body>
+</html>
+<script>
+let fn1_1=()=>{
+    let checkObj=function (){};
+    checkObj.prototype={
+        checkName(){
+            console.log('验证用户名');
+            return this;
+        },
+        checkPassword(){
+            console.log('验证密码');
+            return this;
+        }
+    };
+    let a=new checkObj();
+    a.checkName().checkPassword();
+};
+let fn1_2=()=>{
+    Function.prototype.addMethod=function(name,fn){
+        this[name]=fn;
+        return this;
+    };
+    let checkObj=function () {};
+    //此处不能使用箭头函数，否则this指向出错
+    checkObj.addMethod('checkName',function(){
+        console.log('验证用户名2');
+        return this;
+    }).addMethod('checkPassword',function(){
+        console.log('验证密码2');
+        return this;
+    });
+    checkObj.checkName().checkPassword();
+};
+let fn2_1=()=>{
+    let Book=function (id,name) {
+        let num=1; //私有属性
+        function checkId() { //私有方法
+            console.log('私有方法：checkId()')
+        }
+        //私有属性和方法只能在此函数作用域中被调用
+        console.log('私有属性num：'+num);
+        checkId();
+
+        this.getName=function (name) { //特权方法，类似拦截器，对属性进行初始化操作
+            console.log('特权方法获取name:'+name)
+        };
+        this.setName=function (name) {
+            console.log('初始化操作：');
+            this.name=name;
+        };
+        this.setName(name); //构造器,调用特权方法
+        this.getName(name);
+
+        this.id=id; //对象公有属性
+        this.copy=function () { //对象公有方法
+            console.log('对象公有方法：copy()')
+        };
+    };
+    let a=new Book(1001,'javasript');
+    //通过创建对象调用对象的公有属性和方法，类似构造函数的初始化属性
+    console.log('对象公有属性：'+a.id);
+    a.copy();
+    console.log(a.name)
+};
+let fn2_2=()=>{
+    let Parent=function (name,age) {
+        this.name=name;
+        this.age=age;
+        this.say=function () {
+            console.log('Parent:'+this.name+this.age);
+        };
+        this.run=function () {
+            console.log('running...')
+        }
+    };
+    let mom=new Parent('marry',43);
+    mom.say();
+    let Child=function () {};
+    Child.prototype=new Parent();
+    let son=new Child();
+    console.log(son)
+};
+let fn2_3=()=>{
+    let Parent=function (name,age) {
+        this.name=name;
+        this.age=age;
+        this.say=function () {
+            console.log('Parent:'+this.name+this.age)
+        }
+    };
+    Parent.prototype={
+      run(){
+          console.log(this.name+' is running...')
+      }
+    };
+    let Child=function (name,age) {
+        Parent.call(this,name,age);
+    };
+    let son=new Child('Tom',5);
+    son.say();
+    let son2=new Child('Job',3);
+    son2.say();
+    son2.run();  //报错
+};
+let fn2_4=()=>{
+    let Parent=function (name,age) {
+        this.name=name;
+        this.age=age;
+        this.say=function () {
+            console.log('Parent:'+this.name+this.age)
+        };
+        console.log('父类构造函数被调用了')
+    };
+    Parent.prototype={
+        run(){
+            console.log(this.name+' is running...')
+        }
+    };
+    let Child=function (name,age) {
+        Parent.call(this,name,age);
+    };
+    Child.prototype=new Parent();
+    let son=new Child('Tom',8);
+    son.run();
+    son.say();
+};
+let fn2_5=()=>{
+    let inheritObj=function (obj) {
+        function F() {}
+        F.prototype=obj;
+        return new F();
+    };
+    let object={
+        name:'zhuzhu',
+        age:22,
+        say(){
+            console.log(this.name+this.age)
+        }
+    };
+    let o=new inheritObj(object);
+    console.log(o);
+    // let o=Object.create(object);
+    // console.log(o)
+    //寄生式继承，是原型继承的第二次封装，对继承对象进行了扩展，除了父类属性和方法还有有自己的属性和方法
+    let createObj=function (obj) {
+        let o2=new inheritObj(obj);
+        o2.fly=function () {
+            console.log('a new method.')
+        };
+        return o2;
+    };
+    let o3=new createObj(object);
+    o3.fly();
+};
+let fn2_6=()=>{
+    let inheritObj=function (obj) {
+        function F() {}
+        F.prototype=obj;
+        return new F();
+    };
+    let inheritPro=function(Child,Parent){
+        let o=inheritObj(Parent.prototype);
+        Child.prototype=Object.getPrototypeOf(o);
+    };
+    let Parent=function (name,age) {
+        this.name=name;
+        this.age=age;
+        this.say=function () {
+            console.log('Parent:'+this.name+this.age)
+        };
+        console.log('父类构造函数被调用了')
+    };
+    Parent.prototype={
+        run(){
+            console.log(this.name+' is running...')
+        }
+    };
+    let Child=function (name,age) {
+        Parent.call(this,name,age);
+        this.sex='男';
+    };
+    inheritPro(Child,Parent);
+    Child.prototype.getSex=function(){
+        console.log(this.sex)
+    };
+    let c=new Child('Tom',4);
+    console.log(c);
+    c.run();
+    c.getSex();
+};
+let fn2_7=()=>{
+    let extend=(...objs)=>{
+        return Object.assign({}, ...objs);
+    };
+    let obj1={
+        name:'zhu',
+        age:22,
+        fly(){
+            console.log('I can fly.')
+        }
+    };
+    let obj2={
+        habbit:'sing'
+    };
+    let obj3={
+      sex:'女'
+    };
+    console.log(extend(obj1,obj2,obj3));
+};
+let fn3_1=()=>{
+    class Parent{
+        constructor(name,age){
+            this.name=name;
+            this.age=age;
+        }
+        say(){
+            console.log('Parent:'+this.name+this.age)
+        }
+        static sit(){
+            console.log('sit down.');
+            this.stand();
+        }
+        static stand(){
+            console.log('stand up')
+        }
+    }
+    class Child extends Parent{
+        constructor(name,age,sex){
+            super(name,age,sex);
+            this.sex=sex;
+        }
+        getsex(){
+            console.log('sex:'+this.sex)
+        }
+    }
+    let son=new Child('Tom',7,'男');
+    son.getsex();
+    son.say();
+    Object.assign(Parent.prototype,{
+        fly(){
+            console.log('I can fly.')
+        }
+    });
+    son.fly();
+    Parent.sit();
+    Child.sit();
+    console.log(Object.getPrototypeOf(Child)===Parent)
+};
+let fn3_2=()=>{
+    class Parent{
+        constructor(name){
+            this.name=name; //实例属性
+        }
+        fly(){  //原型方法
+            console.log(this.name+' can fly.')
+        }
+        static sit2(){  //静态方法
+            console.log('sit down')
+        }
+    }
+    class Child extends Parent{
+        constructor(name){
+            super(name)
+        }
+        static sit(){
+            super.sit2();
+        }
+        stand(){
+            super.fly();
+            console.log(this.name+' stand up.')
+        }
+    }
+    let son=new Child('Bob');
+    son.stand();
+    Child.sit();
+    console.log(son)
+};
+let fn4_1=()=>{
+    let Basketball=function () {
+        this.intro='篮球盛行与美国'
+    };
+    Basketball.prototype={
+        getName(){
+            console.log('每个队伍需要5名队员')
+        },
+        getBallSize(){
+            console.log('篮球很大')
+        }
+    };
+    let Football=function () {
+        this.intro='足球在世界范围内很流行'
+    };
+    Football.prototype={
+        getName(){
+            console.log('每个队伍需要11名队员')
+        },
+        getBallSize(){
+            console.log('足球很大')
+        }
+    };
+    let SportsFactory=function (name) {
+        switch (name) {
+            case 'NBA':
+                return new Basketball();
+            case 'wordCup':
+                return new Football();
+        }
+    };
+    let football=SportsFactory('NBA');
+    console.log(football.intro);
+    football.getName();
+    football.getBallSize();
+};
+let fn4_2=()=>{
+    function Createobj(intro,name,size) {
+        let o={};
+        o.intro=intro;
+        o.name=name;
+        o.size=size;
+        o.getName=function () {
+            console.log(this.intro+this.name+this.size)
+        };
+        return o;
+    }
+    let football=new Createobj('篮球盛行美国','每个队伍需要11名队员','篮球很大');
+    football.getName();
+};
+let fn4_3=()=>{
+    let Factory=function(){};
+    Factory.prototype={
+        Java(content){
+            let div=document.createElement('div');
+            div.innerHTML=content;
+            div.style.border='1px solid red';
+            document.getElementById('factory').appendChild(div);
+        },
+        JavaScript(content){
+            let div=document.createElement('div');
+            div.innerHTML=content;
+            div.style.border='1px solid black';
+            document.getElementById('factory').appendChild(div);
+        }
+    };
+    let data=[{
+        type:'Java',content:'这是Java的书'
+    },{
+        type:'JavaScript',content:'这是JavaScript的书'
+    }];
+    for(let i=0;i<=1;i++){
+        let a=new Factory();
+        //a.__proto__[data[i].type](data[i].content);
+        Object.getPrototypeOf(a)[data[i].type](data[i].content);
+    }
+};
+let fn4_4=()=>{
+    //抽象类
+    let VehicleFactory=function (Obj,Type) {
+        if(typeof VehicleFactory[Type]==='function'){
+            function F() {}
+            F.prototype=new VehicleFactory[Type](); //将Car类的实例赋值给F的原型
+            Obj.constructor=Obj;
+            Obj.prototype=new F(); //将F的实例赋值给Obj的原型，因此Obj的原型的原型为Car类
+        }else{
+            throw new Error('未创建该抽象类')
+        }
+    };
+    //汽车类，定义在抽象类上的对象
+    VehicleFactory.Car=function () {
+        this.type='car'
+    };
+    VehicleFactory.Car.prototype={
+        getPrice(){
+            return new Error('抽象方法不能调用')
+        },
+        getSpeed(){
+            return new Error('抽象方法不能调用')
+        }
+    };
+    //公交车类
+    VehicleFactory.Bus=function () {
+        this.type='bus'
+    };
+    VehicleFactory.Bus.prototype={
+        getPrice(){
+            return new Error('抽象方法不能调用')
+        },
+        getPassegerNum(){
+            return new Error('抽象方法不能调用')
+        }
+    };
+    //抽象工厂实现对Car抽象类的继承
+    let BMW=function (price,speed) {
+        this.price=price;
+        this.speed=speed;
+    };
+    VehicleFactory(BMW,'Car'); //使BMW对象继承抽象类Car类的属性和方法
+    BMW.prototype.getPrice=function () {  //重写继承的方法，如不重写，被调用的就是Car类的getPrice方法
+        return this.price;
+    };
+    BMW.prototype.getSpeed=function () {
+        return this.speed;
+    };
+    let a=new BMW(120000,320);
+    console.log(a.type);
+    console.log(a.getPrice());
+    console.log(a.getSpeed());
+};
+</script>
+<script>
+    let fn4_5=()=>{
+        let Human=function (param) {
+            this.skill=param && param.skill || '保密';
+            this.hobby=param && param.hobby || '保密';
+        };
+        Human.prototype={
+            getSkill(){
+                return this.skill;
+            },
+            getHobby(){
+                return this.hobby;
+            }
+        };
+        let Name=function (name) {
+            let that=this;
+            (function (name,that) {
+                that.wholeName=name;
+                if(name.indexOf(' ')> -1 ){
+                    that.FirstName=name.slice(0,name.indexOf(' '));
+                    that.LastName=name.slice(name.indexOf(' '));
+                }
+            })(name,that)
+        };
+        Name.prototype.changeName=function (newname) {
+            this.wholeName=newname
+        };
+        let Person=function (name) {
+            let p=new Human({
+                skill:'fly',
+                hobby:'sing'
+            });
+            p.name=new Name(name);
+            return p;
+        };
+        let person=new Person('Marry White');
+        console.log(person);
+        person.name.changeName('Tom White');
+        console.log(person);
+    };
+    let fn5_1=()=>{
+        let g=(id)=>{
+            return document.getElementById(id);
+        };
+        let css=(id,key,value)=>{
+            g(id).style[key]=value;
+        };
+        let attr=(id,key,value)=>{
+            g(id)[key]=value;
+        };
+        let html=(id,value)=>{
+            g(id).innerHTML=value;
+        };
+        let on=(id,type,fn)=>{
+            g(id)['on'+type]=fn;
+        };
+        css('fnstyle','background','red');
+        attr('fnstyle','class','fnclass');
+        html('fnstyle','这是div的HTML内容');
+        on('fnstyle','click',function () {
+            alert('div被点击了');
+        });
+    };
+    let fn5_2=()=>{
+        let Zhu={
+            g(id){
+                return document.getElementById(id);
+            },
+            css(id,key,value){
+                this.g(id).style[key]=value;
+            },
+            attr(id,key,value){
+                this.g(id)[key]=value;
+            },
+            html(id,value){
+                this.g(id).innerHTML=value;
+            },
+            on(id,type,fn){
+                this.g(id)['on'+type]=fn;
+            }
+        };
+        Zhu.css('namespace','background','red');
+        Zhu.attr('namespace','class','fnclass');
+        Zhu.html('namespace','这是div的HTML内容');
+        Zhu.on('namespace','click',function () {
+            alert('div被点击了');
+        });
+    };
+    let fn5_3=()=>{
+        let Zhu={
+            Ying:{
+                m(){
+                    console.log('Ying中的m方法')
+                }
+            },
+            Hui:{
+                m(){
+                    console.log('Hui中的m方法')
+                }
+            }
+        };
+        Zhu.Ying.m();
+        Zhu.Hui.m();
+    };
+    let fn5_4=()=>{
+        let Conf=(function () {
+            let conf={
+                MAX_NUM:100,
+                MIN_NUM:1,
+                COUNT:1000
+            };
+            return{
+                get(name){
+                    return conf[name]?conf[name]:null;
+                }
+            }
+        })();
+        console.log(Conf);
+        let count=Conf.get('COUNT');
+        console.log(count);
+    };
+    let fn5_5=()=>{
+        let LazySingle=(function () {
+            let _instance=null;
+            function Single() {
+                return{
+                    publicMethod:function () {},
+                    publicProperty:'1.0'
+                }
+            }
+            return function () {
+                if(!_instance){
+                    _instance=Single();
+                }
+                return _instance;
+            }
+        })();
+        let LazySingle2=()=>{
+            let _instance=null;
+            let Single=()=>{
+              return{
+                  publicMethod:function () {},
+                  publicProperty:'2.0'
+                }
+            };
+            if(!_instance){
+                _instance=Single();
+            }
+            return _instance;
+        };
+        console.log(LazySingle().publicProperty);
+        console.log(LazySingle2().publicProperty);
+    };
+    let fn6_1=()=>{
+        function addEvent(dom,type,fn) {
+            if(dom.addEventListener){
+                dom.addEventListener(type,fn,false);
+            }else if(dom.attachEvent){
+                dom.attachEvent('on'+type,fn);
+            }else{
+                dom['on'+type]=fn;
+            }
+        }
+        let myput=document.getElementById('myinput');
+        addEvent(myput,'click',()=>{
+            console.log('绑定了一个事件')
+        });
+    };
+
+</script>
