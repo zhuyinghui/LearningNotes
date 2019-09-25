@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <details>
+        <summary>SVG</summary>
+        <p>基础储备：HTML、XML（先去学XML再回来）</p>
+    </details>
+    <details>
+        <summary>MathML</summary>
+        <p>MathML 是数学标记语言，是一种基于XML（标准通用标记语言的子集）的标准，用来在互联网上书写数学符号和公式的置标语言。</p>
+        <p>Firefox 或 Safari支持，谷歌不支持（感觉没有什么用。。。）</p>
+    </details>
+    <details>
+        <summary>拖放</summary>
+        <p>拖动图片到矩形框中:</p>
+        <!-- 3.被拖动元素置于放置元素上方时触发ondragover事件，被拖动的数据成功置于放置元素里面时触发ondrap事件 -->
+        <div id="div1"  ondragover="allowDrop(event)" ondrop="drop(event)"
+        style="width:70px;height:70px;padding:10px;border:1px solid #aaaaaa;"></div>
+        <!-- 1.为了使元素可拖动，将draggable="true"，元素被拖动时触发ondragstart事件 -->
+        <img id="drag1" src="./eg.jpg" draggable="true" ondragstart="drag(event)" height="69">
+        <script>
+            function allowDrop(ev)
+            {
+                // 4.默认无法将元素或数据放置到其他元素中，所以要阻止默认事件
+                ev.preventDefault();
+            }
+            
+            function drag(ev)
+            {
+                // 2. 拖动事件触发，设置被拖数据的数据类型和值
+                ev.dataTransfer.setData("Text",ev.target.id);
+            }
+            
+            function drop(ev)
+            {
+                //5.获取被拖动的数据，并且把被拖元素追加到放置元素中
+                // ev.preventDefault();
+                var data=ev.dataTransfer.getData("Text");
+                ev.target.appendChild(document.getElementById(data));
+            }
+        </script>
+    </details>
+    <details>
+        <summary>地理定位</summary>
+        <p id="demo">点击按钮获取您当前坐标,需要设备有GPS功能</p>
+        <button onclick="getLocation()">点击获取当前坐标</button>
+        <script>
+            var x=document.getElementById("demo");
+            function getLocation()
+            {
+                if (navigator.geolocation)
+                {
+                    navigator.geolocation.getCurrentPosition(showPosition,showError);
+                }
+                else
+                {
+                    x.innerHTML="该浏览器不支持获取地理位置。";
+                }
+            }
+            
+            function showPosition(position)
+            {
+                x.innerHTML="纬度: " + position.coords.latitude + 
+                "<br>经度: " + position.coords.longitude;	
+            }
+            function showError(error)
+            {
+                switch(error.code) 
+                {
+                    case error.PERMISSION_DENIED:
+                        x.innerHTML="用户拒绝对获取地理位置的请求。"
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        x.innerHTML="位置信息是不可用的。"
+                        break;
+                    case error.TIMEOUT:
+                        x.innerHTML="请求用户地理位置超时。"
+                        break;
+                    case error.UNKNOWN_ERROR:
+                        x.innerHTML="未知错误。"
+                        break;
+                }
+            }
+            </script>
+    </details>
+    <details>
+        <summary>视频</summary>
+        <video id="myvideo" width="320" height="240" controls>
+            <source src="./video.mp4" type="video/mp4">
+            <source src="./video.ogg" type="video/ogg">
+            <source src="./video.webm" type="video/webm">
+            您的浏览器不支持 HTML5 video 标签。
+          </video>
+          <button onclick="playPause()">播放/暂停</button>
+          <button onclick="bigger()">放大</button>
+          <button onclick="smaller()">缩小</button>
+          <script>
+              let e=document.querySelector('#myvideo');
+              let playPause=()=>{
+                  if(e.paused){
+                      e.play();
+                  }else{
+                      e.pause();
+                  }
+              }
+              let bigger=()=>{
+                  e.width+=10;
+              }
+              let smaller=()=>{
+                  e.width-=10;
+              }
+          </script>
+    </details>
+    <details>
+        <summary>音频</summary>
+        <p>略</p>
+    </details>
+    <details>
+        <summary>input类型</summary>
+        <ul>
+            <li>color：<input type="color" onchange="getValue(event)"></li>
+            <li>date：<input type="date" onchange="getValue(event)"></li>
+            <li>datetime：<input type="datetime">（谷歌不支持）</li>
+            <li>datetime-local：<input type="datetime-local" onchange="getValue(event)"></li>
+            <li>email：<input type="email" onchange="getValue(event)">（不好校验）</li>
+            <li>month：<input type="month" onchange="getValue(event)"></li>
+            <li>number：<input type="number" value="1" min="1" max="20" step="3" onchange="getValue(event)"></li>
+            <li>range：<input type="range" value="1" min="10" max="30" step="3" onchange="getValue(event)"></li>
+            <li>search：<input type="search" onchange="getValue(event)"></li>
+            <li>tel：<input type="tel" onchange="getValue(event)">（无浏览器支持）</li>
+            <li>time：<input type="time" onchange="getValue(event)"></li>
+            <li>url：<input type="url" onchange="getValue(event)">（不好校验）</li>
+            <li>week：<input type="week" onchange="getValue(event)"></li>
+        </ul>
+        <script>
+            let getValue=(event)=>{
+                console.log(event.target.value)
+            }
+        </script>
+    </details>
+    <details>
+        <summary>新表单元素</summary>
+        <h4>1.datalist+option</h4>
+        <input list="browsers" name="browser" onchange="getDetails()">
+        <datalist id="browsers">
+            <option value="Internet Explorer">
+            <option value="Firefox">
+            <option value="Chrome">
+            <option value="Opera">
+            <option value="Safari">
+        </datalist>
+        <script>
+         let getDetails=()=>{
+            console.log(event.target.value)
+         }
+        </script>
+        <h4>2.keygen（没看懂怎么用）</h4>
+        <h4>3.output</h4>
+        <form oninput="x.value=parseInt(a.value)+parseInt(b.value)">
+                <input type="range" id="a" value="50">
+                +<input type="number" id="b" value="50">
+                =<output name="x" for="a b"></output>
+        </form>
+    </details>
+    <details>
+        <summary>新表单属性</summary>
+        <h4>1.form属性</h4>
+        autocomplete="on"或者autocomplete="off"，开启或关闭表单元素自动填充。<br/>
+        novalidate规定在提交表单时不应该验证 form 或 input 域。
+        <h4>2.input属性</h4>
+        <ul>
+            <li>autocomplete，自动填充</li>
+            <li>autofocus，页面加载后自动获取焦点</li>
+            <li><input type="text" form="formid">，form，input位于form表单外但还是表单的元素</li>
+            <li><input type="submit" formaction="formurl">，formaction，覆盖form元素的action提交地址</li>
+            <li>formenctype覆盖form元素的enctype属性，formmethod、formnovalidate、formtarget同理</li>
+            <li><input type="image" src="./eg.jpg" alt="Submit" width="48" height="48">,height、width属性只适用于image类型的input标签。</li>
+            <li>list，规定输入域的datalist</li>
+            <li>max min，限定值</li>
+            <li>multiple，是否多选</li>
+            <li><input type="text" pattern="[A-Za-z]{3}">，pattern，正则表达式验证</li>
+            <li>placeholder，输入框提示</li>
+            <li>required，必须输入值</li>
+            <li>step，一次增加的间隔数量</li>
+        </ul>
+    </details>
+    <details>
+        <summary>语义元素</summary>
+        <header>header，定义文档头部u</header>
+        <nav>nav，定义导航链接部分</nav>
+        <section>section，定义文档的节</section>
+        <article>article，定义独立内容</article>
+        <aside>aside，定义页面主区域以外的内容</aside>
+        <figure>figure，定义独立的流内容
+                <figcaption>figcaption，定义figure的标题</figcaption>
+        </figure>
+        <footer>footer，定义文档底部</footer>
+    </details>
+    <details>
+        <summary>Web存储localStorage和sessionStorage</summary>
+        <script>
+            if(typeof(Storage)!=undefined){
+                localStorage.sessionId="123456"; //设置
+                console.log('sessionId:',localStorage.sessionId); //读取
+                console.log('sessionId索引值：',localStorage.key(0)) //获取某个索引的key值，即'sessionId'
+                localStorage.removeItem('sessionId'); //删除单个
+                localStorage.clear(); //全部清空
+            }else{
+                alert('浏览器不支持web存储')
+            }
+        </script>
+    </details>
+    <details>
+        <summary>web SQL数据库</summary>
+        <div id="status">数据库测试</div>
+        <script>
+        let db = openDatabase('mydb', '1.0', 'Test DB', 2 * 1024 * 1024); //参数：数据库名称，版本号，描述文本，数据库大小，创建回调
+        db.transaction(function (tx) {
+            tx.executeSql('CREATE TABLE IF NOT EXISTS LOGS (id unique, log)'); //创建logs表
+            tx.executeSql('INSERT INTO LOGS (id, log) VALUES (1, "菜鸟教程")'); //插入数据
+            tx.executeSql('INSERT INTO LOGS (id, log) VALUES (2, "www.runoob.com")');
+        });
+        db.transaction(function (tx) {
+            tx.executeSql('SELECT * FROM LOGS', [], function (tx, results) {
+                var len = results.rows.length, i;
+                msg = "<p>查询记录条数: " + len + "</p>";
+                document.querySelector('#status').innerHTML +=  msg;
+                for (i = 0; i < len; i++){
+                    document.querySelector('#status').innerHTML += results.rows.item(i).log;
+                }
+            }, null);
+        });
+        </script>
+    </details>
+</body>
+</html>
