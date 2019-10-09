@@ -1,0 +1,10 @@
+<p>1.事件</p>
+<input type="text" (keydown)="func1($event)">
+<h4>{{msg}}</h4>
+<p>2. 双向数据绑定,只针对表单元素</p>
+<input type="text" [(ngModel)]="msg2">
+<h4>{{msg2}}</h4>
+<app-form-com></app-form-com>
+
+<p>3. 服务的使用</p>
+<button (click)="getGlobal()">触发服务的方法</button>

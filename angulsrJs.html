@@ -1,0 +1,56 @@
+<html>
+    <head>
+        <title>Angular学习</title>
+        <meta charset="utf-8">
+        <script src="https://cdn.staticfile.org/angular.js/1.4.6/angular.min.js"></script>
+    </head>
+    <body>
+        <div ng-app="app">
+            <p>单向数据绑定：{{age}}<input type="text" ng-model="age"></p>
+
+            声明变量：<div ng-init="firstname='yinghui';lastname='zhu'"></div>
+            使用变量：<span ng-bind="firstname"></span> <br/>
+            声明对象：<div ng-init="obj={name:'zyh',age:21}"></div>
+            声明数组：<div ng-init="arr=[1,2,3]"></div>
+
+            js表达式：{{"my name is "+lastname+firstname}} <br/>
+
+            模块、控制器(双向数据绑定)：
+            <div ng-controller="myCtrl">
+                <input type="text" ng-model="weight">{{weight}} <br>
+                <input type="text" ng-model="nowUrl">{{nowUrl}}
+            </div>
+
+            循环：
+            <div ng-init="arr=[1,2,3]"></div>
+            <div ng-repeat="t in arr">循环{{$index}}--{{t}}</div>
+
+            自定义指令：
+            <runoob-directive></runoob-directive>
+
+            验证用户邮箱输入：
+            <form name="myForm">
+                <input type="email" name="myAddress" ng-model="text">
+                <span ng-show="myForm.myAddress.$error.email">不是一个合法的邮箱地址</span>
+            </form>
+           
+            
+
+            
+            
+        </div>
+    </body>
+    <script>
+        let app = angular.module('app', []);
+        app.controller('myCtrl', function($scope,$location) {
+            $scope.weight= "84";
+            $scope.nowUrl=$location.absUrl();
+        });
+        app.directive("runoobDirective", function() {
+            return {
+                template : "<h1>自定义指令!</h1>"
+            };
+        });
+    </script>
+  
+</html>
