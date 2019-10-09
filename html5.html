@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>html5学习笔记</title>
+</head>
+<body>
+	<details>
+		<summary>HTML浏览器支持</summary>
+		1.为了让旧浏览器正确显示html语义元素，将语义元素的display设置为block
+		<p>
+			header,section,footer,aside,nav,main,article,figure{
+				display:block;
+			}
+		</p>
+		2.添加新元素
+		<p>
+			旧浏览器使用js语句添加新元素，documen.createElement('newdom')<br />
+			新浏览器直接使用标签，<newdom>这是新元素</newdom>
+		</p>
+		3.html5shiv主要解决HTML5提出的新的元素不被IE6-8识别，这些新元素不能作为父节点包裹子元素，
+		并且不能应用CSS样式。html5shiv的引用必须放在head中
+		<p>
+			<!--[if lt IE 9]>
+			  <script src="http://cdn.static.runoob.com/libs/html5shiv/3.7/html5shiv.min.js"></script>
+			<![endif]-->
+		</p>
+	</details>
+	<details>
+		<summary>HTML5新元素--canvas</summary>
+		1.canvas只有height和width属性，默认height150px，width300px
+		<canvas id="canvas">您的浏览器不支持canvas，请升级您的浏览器</canvas>
+		<br />
+		2.渲染上下文对象ctx
+		<script>
+			let drawRect=()=>{
+				let canvas=document.querySelector('#canvas');
+				if(!canvas.getContext) return;
+				let ctx=canvas.getContext('2d');
+				//选填充色
+				ctx.fillStyle="rgb(200,0,0)";
+				//绘制矩形,参数:横坐标、纵坐标、宽度、高度
+				ctx.fillRect(10,10,55,50);
+				//绘制矩形边框
+				ctx.strokeRect(10,70,50,50);
+				//清除指定矩形区域
+				ctx.clearRect(10,10,30,30);
+			}
+			drawRect();
+		</script>
+		<br />
+		3.绘制路径，路径是通过不同颜色和宽度的线段或曲线相连形成的不同形状的点的集合。
+		<p>
+			绘制路径需要用到的方法：<br />
+			（1）beginPath() 新建一条路径 <br />
+			（2）moveTo(x,y) 设置路径的起始点坐标<br />
+			（3）closePath() 闭合路径<br />
+			（4）stroke() 通过线条来绘制图形轮廓<br />
+			（5）fill() 填充路径的内容区域，如果路径没有闭合fill会自动闭合
+		</p>
+		<script>
+			let drawPath=()=>{
+				let canvas=document.querySelector('#canvas');
+				if(!canvas.getContext) return;
+				let ctx=canvas.getContext('2d');
+				//新建路径
+				ctx.beginPath();
+				//设置起始点坐标
+				ctx.moveTo(50, 50);
+				//画直线
+				ctx.lineTo(100, 50);
+				ctx.lineTo(100, 80);
+				//闭合路径
+				ctx.closePath();
+				//绘制轮廓
+				ctx.stroke();
+			}
+			drawPath();
+		</script>
+		4.绘制圆弧<br />
+		（1）arc(x,y,r,startAngle, endAngle, anticlockwise): 
+		以(x, y)为圆心，以r为半径，从 startAngle弧度开始到endAngle弧度结束，0弧度指向x轴正方向。
+		anticlosewise是布尔值，true表示逆时针，false表示顺时针(默认是顺时针)。
+		<br />
+		弧度定义：弧长等于半径的弧，其所对的圆心角为1弧度，一周的弧度数为2π，1度就是π/180弧度。
+		redians=(Math.PI/180)*degress
+		<script>
+			let drawArc=()=>{
+				let canvas=document.querySelector('#canvas');
+				if(!canvas.getContext) return;
+				let ctx=canvas.getContext('2d');
+				ctx.beginPath();
+				//1 deg=π/180 red;
+				ctx.arc(120,10,40,0,Math.PI/2,false);
+				ctx.stroke();
+			}
+			drawArc();
+		</script>
+		<br />
+		（2）arcTo(x1,y1,x2,y2,r):控制点1坐标(x1,y1)，控制点2坐标(x2,y2)，原的半径r。
+		起始点和控制点1形成一条射线，控制点2和控制点1形成一条射线，绘制的圆弧就是与这两条射线相切的圆弧。
+		<script>
+			let drawArcto=()=>{
+				let canvas=document.querySelector('#canvas');
+				if(!canvas.getContext) return;
+				let ctx=canvas.getContext('2d');
+				ctx.beginPath();
+				ctx.moveTo(80, 80);
+				ctx.arcTo(150, 50, 200, 200, 50);
+				ctx.stroke();
+				//路径绘制矩形
+				ctx.beginPath();
+				ctx.rect(80, 5, 20, 20);
+				ctx.fill()
+			}
+			drawArcto();
+		</script>
+		<br />
+		（3）贝塞尔曲线（没看懂。。。）
+		<br />
+		5.添加样式和颜色
+		<br />
+		ctx.fillStyle="color" 设置图形的填充色；ctx.strokeStyle="color" 设置图形轮廓的颜色。
+		<br />
+		<canvas id="tutorial" height="300" width="300"></canvas>
+		<script>
+			let drawColor=()=>{
+			  let canvas = document.getElementById('tutorial');
+			  if (!canvas.getContext) return;
+			  let ctx = canvas.getContext("2d");
+			  for (let i = 0; i < 6; i++){
+				for (let j = 0; j < 6; j++){
+				  ctx.fillStyle = 'rgb(' + Math.floor(255 - 42.5 * i) + ',' +
+					Math.floor(255 - 42.5 * j) + ',0)';
+				  ctx.fillRect(j * 50, i * 50, 50, 50);
+				}
+			  }
+			}
+			drawColor();
+		</script>
+		<br />
+		6.设置线条样式
+		<br />
+		<canvas id="linecanvas"></canvas>
+		<script>
+			let drawLine=()=>{
+				let canvas = document.getElementById('linecanvas');
+				if (!canvas.getContext) return;
+				let ctx = canvas.getContext("2d");
+				ctx.beginPath();
+				ctx.moveTo(10, 100);
+				ctx.lineTo(100, 10);
+				ctx.lineTo(150,40);
+				ctx.lineTo(200,10);
+				//线条宽度
+				ctx.lineWidth = 10;
+				//线条两端样式,round为半圆,butt为方形,square也是方形但是使得线条长度增加了一个宽度
+				ctx.lineCap="round";
+				//两条线连接处的样式,round为圆角,bevel为平角,miter为尖角
+				ctx.lineJoin="bevel";
+				ctx.stroke();
+			}
+			drawLine();
+		</script>
+		<br />
+		7.绘制虚线
+		<script>
+			let drawdashLine=()=>{
+				let canvas = document.getElementById('linecanvas');
+				if (!canvas.getContext) return;
+				let ctx = canvas.getContext("2d");
+				ctx.lineWidth = 3;
+				ctx.setLineDash([20, 5]);  // [实线长度, 间隙长度]
+				ctx.lineDashOffset = 10;  //起始偏移量
+				ctx.strokeRect(80, 50, 210, 50);
+			}
+			drawdashLine();
+		</script>
+		<br />
+		8.绘制文本
+		<br />
+		fillText(text, x, y [, maxWidth]) 在指定的 (x,y) 位置填充指定的文本，绘制的最大宽度是可选的。
+		strokeText(text, x, y [, maxWidth]) 在指定的 (x,y) 位置绘制文本边框，绘制的最大宽度是可选的。
+		<br />
+		<canvas id="textcanvas"></canvas>
+		<script>
+			let drawText=()=>{
+				let canvas = document.getElementById('textcanvas');
+				if (!canvas.getContext) return;
+				let ctx = canvas.getContext("2d");
+				ctx.font = "80px sans-serif"
+				ctx.fillText("我是文字", 0, 80);
+				ctx.strokeText("我是文字", 0, 120)
+			}
+			drawText();
+		</script>
+		<br />
+		font = value 当前我们用来绘制文本的样式。这个字符串使用和 CSS font 属性相同的语法。 默认的字体是 10px sans-serif。<br />
+		textAlign = value 文本对齐选项。 可选的值包括：start, end, left, right or center。 默认值是 start。<br />
+		textBaseline = value 基线对齐选项，可选的值包括：top, hanging, middle, alphabetic, ideographic, bottom。默认值是 alphabetic。<br />
+		direction = value 文本方向。可能的值包括：ltr, rtl, inherit。默认值是 inherit。<br />
+		9. 绘制图片<br />
+		<img src="image.png" width="150" onclick="drawImg()"/>
+		<canvas id="imgcanvas"></canvas>
+		<script>
+			let drawImg=()=>{
+				let canvas = document.getElementById('imgcanvas');
+				if (!canvas.getContext) return;
+				let ctx = canvas.getContext("2d");
+				let img = new Image();   // 创建img元素
+				img.onload = function(){
+					ctx.drawImage(img,0,0);  //参数:图片,横坐标,纵坐标
+					ctx.drawImage(img,80,0,200,150);  //参数:图片,横坐标,纵坐标,宽度,高度
+					ctx.drawImage(img,0,0,90,90,200,0,90,90);  //参数:图片,前4个是定义图像源的切片位置和大小,后4个则是定义切片的目标显示位置和大小
+				}
+				img.src = 'image.png'; // 设置图片源地址
+			}
+			// drawImg();
+		</script>
+		<br />
+		11.状态的保存和恢复<br />
+		关于 save() ：Canvas状态存储在栈中，每当save()方法被调用后，当前的状态就被推送到栈中保存。<br />
+		关于restore()：每一次调用 restore 方法，上一个保存的状态就从栈中弹出，所有设定都恢复(类似数组的 pop())。<br />
+		12.变形<br />
+		（1）translate(x,y) 移动canvas的坐标原点<br />
+		（2）rotate(redians) 顺时针旋转坐标轴，单位为弧度<br />
+		（3）scale(x,y) 增减图形在canvas中的像素数目，对形状、位图放大或缩小<br />
+		（4）transform(a,b,c,d,e,f) 变形矩阵（搞不懂怎么变形的。。。）<br />
+		<canvas id="actioncanvas"></canvas>
+		<script>
+			let drawAction=()=>{
+				let canvas = document.getElementById('actioncanvas');
+				if (!canvas.getContext) return;
+				let ctx = canvas.getContext("2d");
+				ctx.translate(60,20);
+				ctx.rotate(Math.PI/180*30);
+				ctx.scale(2,1.5);
+				ctx.fillRect(0,0,50,50);
+			}
+			drawAction();
+		</script>
+		<br />
+		13.合成<br />
+		<canvas id="mixcanvas"></canvas><br />
+		<script>
+			let drawMix=()=>{
+				let canvas = document.getElementById('mixcanvas');
+				if (!canvas.getContext) return;
+				let ctx = canvas.getContext("2d");
+				ctx.fillStyle = "blue";
+				ctx.fillRect(0, 0, 100, 100);
+				//合成模式选择
+				ctx.globalCompositeOperation = "source-over"; //全局合成操作
+				ctx.fillStyle = "red";
+				ctx.fillRect(50, 50, 100, 100);
+			}
+			drawMix();
+		</script>
+		(1)source-over 新图遮盖旧图
+		(2)source-in 新图的重叠部分
+		(3)source-out 新图非重叠部分
+		(4)source-atop 旧图及重叠部分
+		(5)destination-over 旧图遮盖新图
+		(6)destination-in 旧图的重叠部分
+		(7)destination-out 旧图非重叠部分
+		(8)destination-atop 新图及重叠部分
+		(9)lighter 重叠部分颜色做加处理
+		(10)darken 重叠部分颜色位比较取最小
+		(11)lighten 重叠部分颜色位比较取最大
+		(12)xor 重叠部分变透明
+		(13)copy 只保留新图<br />
+		14.裁剪路径<br />
+		clip()只能遮罩在这个方法调用之后绘制的图像，如果是 clip() 方法调用之前绘制的图像，则无法实现遮罩。<br />
+		<canvas id="clipcanvas"></canvas><br />
+		<script>
+			let drawClip=()=>{
+				let canvas = document.getElementById('clipcanvas');
+				if (!canvas.getContext) return;
+				let ctx = canvas.getContext("2d");
+				ctx.beginPath();
+				ctx.arc(20,20, 100, 0, Math.PI * 2);
+				ctx.clip();
+				ctx.fillStyle = "pink";
+				ctx.fillRect(20, 20, 100,100);
+			}
+			drawClip();
+		</script>
+		15.动画（感觉有点摸不着头脑，暂时省略）
+	</details>
+	
+</body>
+</html>
