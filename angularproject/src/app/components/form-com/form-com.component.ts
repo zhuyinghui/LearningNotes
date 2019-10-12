@@ -20,6 +20,7 @@ export class FormComComponent implements OnInit {
     hobby:[],
     mark:''
   }
+  
   public cities:Array<string>=[
     '请选择','长沙','湘潭','株洲'
   ]
