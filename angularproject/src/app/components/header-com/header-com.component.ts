@@ -10,23 +10,21 @@ export class HeaderComComponent implements OnInit {
   //定义数据
   public navlist:Array<object>=[
     {
-      name:'页面一'
+      name:'首页',path:'home'
     },
     {
-      name:'页面二'
+      name:'页面',path:'page1'
     },
     {
-      name:'页面三'
+      name:'页面',path:'page2'
     },
   ]
   public flag:boolean=true
   public today:any=new Date()
   constructor() { 
-    console.log('constructor')
   }
 
   ngOnInit() {
-    console.log('ngOnInit')
   }
 
 }

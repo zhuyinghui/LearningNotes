@@ -2,9 +2,16 @@
 <input type="text" (keydown)="func1($event)">
 <h4>{{msg}}</h4>
 <p>2. 双向数据绑定,只针对表单元素</p>
-<input type="text" [(ngModel)]="msg2">
-<h4>{{msg2}}</h4>
-<app-form-com></app-form-com>
+<button (click)="changeflag()">打开/关闭表单</button>
+<app-form-com [msg3]="msg3" [parentFn]="parentFn" *ngIf="flag"></app-form-com>
 
 <p>3. 服务的使用</p>
 <button (click)="getGlobal()">触发服务的方法</button>
+
+<p>4. 操作节点（父组件调用子组件方法，添加动画）</p>
+<div #testdom *ngIf="flag">这是节点</div>
+
+<p>5. 组件生命周期函数</p>
+
+<p>6. 请求数据</p>
+<app-data-com></app-data-com>

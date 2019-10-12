@@ -28,5 +28,9 @@
     <button (click)="submit()">提交</button>
 
     <p>{{person|json}}</p>
+
+    <h3 id="title">父子组件通信</h3>
+    <p>{{msg3}}</p>
+    <button (click)="parentFn()">子组件调用父组件的方法</button>
 </div>
 
