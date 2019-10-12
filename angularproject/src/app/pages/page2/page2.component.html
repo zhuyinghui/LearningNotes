@@ -1,2 +1,6 @@
-<p>page2 works!</p>
-<a [routerLink]="[ '/page3' ]">跳转到页面3并且传值</a>
+<p>8. 路由跳转及传值</p>
+
+<a [routerLink]="[ '/page3','654321' ]">跳转到页面3--动态路由传值</a><br>
+<a [routerLink]="[ '/page3','3333' ]" [queryParams]="{aid:123456,name:'zyh'}">跳转到页面3--GET传值</a><br>
+<button (click)="topage3(1)">动态路由js跳转</button>
+<button (click)="topage3(2)">get传值js跳转</button>

@@ -15,7 +15,7 @@ export class HomeComponent implements OnInit {
   public flag:boolean=true
   
   //定义节点
-  @ViewChild('testdom') testdom:any
+  @ViewChild('testdom',{read:ElementRef,static:false}) testdom:ElementRef
 
   //初始化服务实例
   constructor(public storage:StorageService) { 

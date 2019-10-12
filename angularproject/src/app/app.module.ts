@@ -14,10 +14,16 @@ import { FormComComponent } from './components/form-com/form-com.component';
 import { DataComComponent } from './components/data-com/data-com.component'
 //页面组件
 import { HomeComponent } from './pages/home/home.component';
+
 import { Page1Component } from './pages/page1/page1.component';
+import { Page1child1Component } from './pages/page1/page1child1/page1child1.component';
+import { Page1child2Component } from './pages/page1/page1child2/page1child2.component';
+
 import { Page2Component } from './pages/page2/page2.component';
-import { ErrpageComponent } from './pages/errpage/errpage.component';
+
 import { Page3Component } from './pages/page3/page3.component';
+
+import { ErrpageComponent } from './pages/errpage/errpage.component';
 
 //服务
 import { StorageService } from './services/storage.service';
@@ -34,7 +40,9 @@ import { AxiosService } from './services/axios.service';
     Page1Component,
     Page2Component,
     ErrpageComponent,
-    Page3Component
+    Page3Component,
+    Page1child1Component,
+    Page1child2Component,
   ],
   imports: [
     BrowserModule,
